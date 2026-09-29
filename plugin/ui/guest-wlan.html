@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>Guest WLAN settings</title>
+    <script src="sdpi-components.js"></script>
+    <script src="connection.js"></script>
+    <link rel="stylesheet" href="pi.css" />
+  </head>
+  <body>
+    <div id="fritz-connection"></div>
+
+    <div class="requires-connection" hidden>
+      <sdpi-item label="On press">
+        <sdpi-select setting="pressAction" default="toggle">
+          <option value="toggle">Turn guest WLAN on / off</option>
+          <option value="qr">Show the Wi-Fi QR code</option>
+        </sdpi-select>
+      </sdpi-item>
+
+      <p class="hint">
+        Holding the key for about a second shows the Wi-Fi QR code for 30 seconds; guests scan it with their phone camera to join.
+        The SSID is drawn on the key. If you set your own title, the SSID is left out.
+      </p>
+    </div>
+  </body>
+</html>
