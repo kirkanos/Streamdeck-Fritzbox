@@ -24,7 +24,7 @@
   },
   "dependencies": {
     "@elgato/streamdeck": "^3.0.1",
-    "qrcode-generator": "^1.5.2"
+    "qrcode-generator": "^2.0.0"
   },
   "devDependencies": {
     "@elgato/cli": "^1.10.1",
