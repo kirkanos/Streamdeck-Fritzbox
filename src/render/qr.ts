@@ -1,7 +1,9 @@
 import qrcode from "qrcode-generator";
 
 // The default byte mapping only covers Latin-1; SSIDs and passwords may hold anything.
-qrcode.stringToBytes = qrcode.stringToBytesFuncs["UTF-8"];
+// qrcode-generator 2 ships its UTF-8 mapping as a separate module that its export map hides,
+// so the bytes come from Node's own encoder.
+qrcode.stringToBytes = (s: string) => [...Buffer.from(s, "utf8")];
 
 export type QrMatrix = boolean[][];
 
