@@ -1,6 +1,6 @@
 # Streamdeck-Fritzbox
 
-Stream Deck plugin `com.kirkanos.fritzbox`. Status: M1–M3 implemented (see README.md); M4 (release) open.
+Stream Deck plugin `com.kirkanos.fritzbox`. Status: M1–M4 done, released 1.0.0.
 
 Deviations from the original plan: TR-064 is used over plain HTTP on port 49000 by default (HTTPS on 49443 is an option), and the connection settings live in the global settings shared by all keys, with a status block in every settings page.
 

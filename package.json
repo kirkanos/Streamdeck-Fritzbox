@@ -1,6 +1,6 @@
 {
   "name": "streamdeck-fritzbox",
-  "version": "0.1.0",
+  "version": "1.0.0",
   "private": true,
   "type": "module",
   "description": "Fritz!Box Control: Guest WLAN and internet status of a Fritz!Box on the Stream Deck.",
