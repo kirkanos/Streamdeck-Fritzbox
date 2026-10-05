@@ -243,11 +243,6 @@ export class FritzService extends EventEmitter<{ update: []; state: [] }> {
     const wan = await this.#wanConnection(client);
     const status = await client.call(wan, "GetStatusInfo");
     const connected = status.NewConnectionStatus === "Connected";
-
-    let externalIp: string | undefined;
-    if (connected) {
-      externalIp = (await client.call(wan, "GetExternalIPAddress")).NewExternalIPAddress || undefined;
-    }
     let downMbit = 0;
     let upMbit = 0;
     try {
@@ -264,7 +259,6 @@ export class FritzService extends EventEmitter<{ update: []; state: [] }> {
       connected,
       status: status.NewConnectionStatus ?? "",
       linkStatus: link.NewPhysicalLinkStatus ?? "",
-      externalIp,
       uptime: toNumber(status.NewUptime),
       downMbit,
       upMbit,

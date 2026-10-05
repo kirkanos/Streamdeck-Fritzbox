@@ -11,7 +11,7 @@ Switch the guest WLAN and see the internet connection status from the deck.
 ## Keys & dials
 
 - **Guest WLAN** key: on/off as color, SSID as text, number of connected guest devices. Press toggles. Long press shows a QR code (WIFI:T:WPA;S:<ssid>;P:<key>;;) on the key for 30 s.
-- **Online** key: connected/disconnected, external IP, current down/up rate in Mbit/s, connection uptime. Press opens `http://fritz.box`.
+- **Online** key: connected/disconnected, current down/up rate in Mbit/s, connection uptime. Press opens `http://fritz.box`.
 - **Dial** (optional): touch strip shows the QR code permanently while the guest WLAN is on.
 
 ## Data source & API
@@ -19,7 +19,7 @@ Switch the guest WLAN and see the internet connection status from the deck.
 - TR-064 over HTTPS on port 49443 with HTTP digest auth, SOAP requests built by a small module in `src/tr064/` (no third-party library; Kuma Glance also keeps dependencies minimal).
   - `urn:dslforum-org:service:WLANConfiguration:3` (guest WLAN on dual-band boxes): `GetInfo`, `SetEnable`, `GetSecurityKeys`, `GetTotalAssociations`.
   - `urn:dslforum-org:service:WANCommonInterfaceConfig:1`: `GetCommonLinkProperties`, `X_AVM-DE_GetOnlineMonitor` for rates.
-  - `urn:dslforum-org:service:WANIPConnection:1` (or `WANPPPConnection:1` on DSL): `GetStatusInfo`, `GetExternalIPAddress`.
+  - `urn:dslforum-org:service:WANIPConnection:1` (or `WANPPPConnection:1` on DSL): `GetStatusInfo`.
 - Poll every 10 s. Discover the guest WLAN index via `GetInfo` on indices 2 and 3 (`NewSSID` and `NewGuestWLAN` on newer firmware).
 
 ## Settings

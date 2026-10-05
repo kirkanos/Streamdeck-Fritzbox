@@ -1,5 +1,5 @@
 import { type QrMatrix, qrSvg } from "./qr";
-import { background, FONT, mix, svg, text, toDataUrl, truncate, wrapText } from "./svg";
+import { background, mix, svg, text, toDataUrl, truncate, wrapText } from "./svg";
 import { THEME } from "./theme";
 import { formatGuests, formatMbit, formatUptime } from "./values";
 
@@ -51,7 +51,6 @@ export function guestKey(k: GuestKey): string {
 export type OnlineKey = {
   connected: boolean;
   status: string;
-  externalIp?: string;
   downMbit: number;
   upMbit: number;
   uptime: number;
@@ -72,15 +71,15 @@ export function onlineKey(k: OnlineKey): string {
     );
   }
 
-  const title = text("Online", { x: S / 2, y: 30, size: 21, weight: 800 });
-  const ip = text(truncate(k.externalIp ?? "no IP", 15), { x: S / 2, y: 54, size: 15, weight: 600, opacity: 0.85 });
-  const rate = (value: number, arrow: string, x: number, anchor: "start" | "end") =>
-    `<text x="${x}" y="88" font-family="${FONT}" font-size="18" font-weight="800" fill="#FFFFFF" text-anchor="${anchor}">` +
-    `<tspan font-size="12" fill-opacity="0.6">${arrow}</tspan> ${formatMbit(value)}</text>`;
-  const rates = rate(k.downMbit, "▼", 10, "start") + rate(k.upMbit, "▲", S - 10, "end") + text("Mbit/s", { x: S / 2, y: 104, size: 11, weight: 600, opacity: 0.6 });
-  const uptime = text(`up ${formatUptime(k.uptime)}`, { x: S / 2, y: 128, size: 14, weight: 600, opacity: 0.75 });
+  const title = text("Online", { x: S / 2, y: 28, size: 19, weight: 800 });
+  const rate = (value: number, arrow: string, y: number) =>
+    text(arrow, { x: 12, y, size: 20, weight: 700, opacity: 0.7, anchor: "start" }) +
+    text(formatMbit(value), { x: S - 12, y, size: 30, weight: 800, anchor: "end" });
+  const rates =
+    rate(k.downMbit, "▼", 64) + rate(k.upMbit, "▲", 98) + text("Mbit/s", { x: S - 12, y: 113, size: 11, weight: 600, opacity: 0.6, anchor: "end" });
+  const uptime = text(`up ${formatUptime(k.uptime)}`, { x: S / 2, y: 132, size: 14, weight: 600, opacity: 0.75 });
 
-  return toDataUrl(svg(S, S, bg + accent + title + ip + rates + uptime));
+  return toDataUrl(svg(S, S, bg + accent + title + rates + uptime));
 }
 
 /** Full-key Wi-Fi QR code on white, with the SSID above. */

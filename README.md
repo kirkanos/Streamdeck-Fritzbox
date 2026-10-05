@@ -10,7 +10,7 @@ Unofficial plugin, not affiliated with AVM.
   * On / off as background color, the SSID (left out if you set your own title on the key) and the number of connected guest devices.
   * Pressing the key turns the guest WLAN on or off.
   * Holding the key for about a second shows the Wi-Fi QR code (`WIFI:T:WPA;S:…;P:…;;`) for 30 seconds; guests scan it with their phone camera to join.
-* **Online** key: 🟩 online / 🟥 offline, the external IP address, the current download and upload rate in Mbit/s and the connection uptime. Pressing the key opens the Fritz!Box web interface.
+* **Online** key: 🟩 online / 🟥 offline, the current download and upload rate in Mbit/s and the connection uptime. Pressing the key opens the Fritz!Box web interface.
 * **Guest WLAN Dial** (Stream Deck + / + XL): the touch strip shows the Wi-Fi QR code, SSID and guest count while the guest WLAN is on; pushing the dial or tapping the strip turns it on or off.
 * The plugin talks to the box over its TR-064 interface (SOAP over HTTP with digest authentication, the same interface the Fritz!App and MyFritz use) and polls every 10 seconds.
 

@@ -51,7 +51,7 @@
       "UUID": "com.kirkanos.fritzbox.online",
       "Name": "Online",
       "Icon": "images/actions/online",
-      "Tooltip": "Internet connection: status, external IP, current down/up rate and uptime; press to open the Fritz!Box",
+      "Tooltip": "Internet connection: status, current down/up rate and uptime; press to open the Fritz!Box",
       "PropertyInspectorPath": "ui/online.html",
       "Controllers": [
         "Keypad"

@@ -17,7 +17,6 @@ export type OnlineStatus = {
   status: string;
   /** "Up" / "Down" of the physical WAN link. */
   linkStatus: string;
-  externalIp?: string;
   /** Connection uptime in seconds. */
   uptime: number;
   /** Current rates in Mbit/s. */

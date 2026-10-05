@@ -82,9 +82,8 @@ describe("images", () => {
   });
 
   it("shows the internet connection", () => {
-    const up = decode(onlineKey({ connected: true, status: "Connected", externalIp: "203.0.113.7", downMbit: 95.2, upMbit: 40.0, uptime: 90_000 }));
+    const up = decode(onlineKey({ connected: true, status: "Connected", downMbit: 95.2, upMbit: 40.0, uptime: 90_000 }));
     expect(up).toContain(">Online<");
-    expect(up).toContain("203.0.113.7");
     expect(up).toContain("95.2");
     expect(up).toContain("40.0");
     expect(up).toContain("up 1d 1h");
