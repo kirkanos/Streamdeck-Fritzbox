@@ -11,4 +11,7 @@ export const THEME = {
   warn: "#F59E0B",
   info: "#3B82F6",
   idle: "#64748B",
+  /** Arrows of the Online key; light tints so they stand out on the green background. */
+  upload: "#FBBF24",
+  download: "#38BDF8",
 };

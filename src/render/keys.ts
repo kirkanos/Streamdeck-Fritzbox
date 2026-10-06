@@ -72,11 +72,11 @@ export function onlineKey(k: OnlineKey): string {
   }
 
   const title = text("Online", { x: S / 2, y: 28, size: 19, weight: 800 });
-  const rate = (value: number, arrow: string, y: number) =>
-    text(arrow, { x: 12, y, size: 20, weight: 700, opacity: 0.7, anchor: "start" }) +
+  const rate = (value: number, arrow: string, color: string, y: number) =>
+    text(arrow, { x: 12, y, size: 20, weight: 700, fill: color, anchor: "start" }) +
     text(formatMbit(value), { x: S - 12, y, size: 30, weight: 800, anchor: "end" });
   const rates =
-    rate(k.downMbit, "▼", 64) + rate(k.upMbit, "▲", 98) + text("Mbit/s", { x: S - 12, y: 113, size: 11, weight: 600, opacity: 0.6, anchor: "end" });
+    rate(k.upMbit, "▲", THEME.upload, 64) + rate(k.downMbit, "▼", THEME.download, 98) + text("Mbit/s", { x: S - 12, y: 113, size: 11, weight: 600, opacity: 0.6, anchor: "end" });
   const uptime = text(`up ${formatUptime(k.uptime)}`, { x: S / 2, y: 132, size: 14, weight: 600, opacity: 0.75 });
 
   return toDataUrl(svg(S, S, bg + accent + title + rates + uptime));
