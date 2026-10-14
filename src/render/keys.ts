@@ -1,7 +1,7 @@
 import { type QrMatrix, qrSvg } from "./qr";
 import { background, mix, svg, text, toDataUrl, truncate, wrapText } from "./svg";
 import { THEME } from "./theme";
-import { formatGuests, formatMbit, formatUptime } from "./values";
+import { formatBytes, formatGuests, formatMbit, formatUptime } from "./values";
 
 /** Key images are drawn at 144×144 and scaled by Stream Deck. */
 const S = 144;
@@ -80,6 +80,30 @@ export function onlineKey(k: OnlineKey): string {
   const uptime = text(`up ${formatUptime(k.uptime)}`, { x: S / 2, y: 132, size: 14, weight: 600, opacity: 0.75 });
 
   return toDataUrl(svg(S, S, bg + accent + title + rates + uptime));
+}
+
+export type TrafficKey = {
+  sentBytes: number;
+  receivedBytes: number;
+};
+
+/** Today's traffic from the online counter: upload above download, like the Online key. */
+export function trafficKey(k: TrafficKey): string {
+  const bg = background("bg", mix(THEME.info, THEME.base, 0.72), THEME.base, S, S);
+  const accent = `<rect x="0" y="0" width="${S}" height="5" fill="${THEME.info}"/>`;
+  const title = text("Today", { x: S / 2, y: 28, size: 19, weight: 800 });
+  const row = (bytes: number, arrow: string, color: string, y: number) => {
+    const [value, unit] = formatBytes(bytes);
+    return (
+      text(arrow, { x: 12, y, size: 20, weight: 700, fill: color, anchor: "start" }) +
+      text(value, { x: S - 12, y, size: 28, weight: 800, anchor: "end", suffix: unit, suffixSize: 15 })
+    );
+  };
+  const rows = row(k.sentBytes, "▲", THEME.upload, 66) + row(k.receivedBytes, "▼", THEME.download, 102);
+  const [total, unit] = formatBytes(k.sentBytes + k.receivedBytes);
+  const sum = text(`total ${total} ${unit}`, { x: S / 2, y: 132, size: 14, weight: 600, opacity: 0.75 });
+
+  return toDataUrl(svg(S, S, bg + accent + title + rows + sum));
 }
 
 /** Full-key Wi-Fi QR code on white, with the SSID above. */

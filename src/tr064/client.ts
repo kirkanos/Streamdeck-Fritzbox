@@ -15,7 +15,7 @@ export type Tr064Options = {
   transport?: Transport;
 };
 
-export type TransportRequest = { url: string; method: "POST"; headers: Record<string, string>; body: string; timeoutMs: number };
+export type TransportRequest = { url: string; method: "GET" | "POST"; headers: Record<string, string>; body?: string; timeoutMs: number };
 export type TransportResponse = { status: number; header(name: string): string | undefined; body: string };
 export type Transport = (request: TransportRequest) => Promise<TransportResponse>;
 
@@ -34,7 +34,7 @@ export class Tr064Error extends Error {
 }
 
 /** Plain HTTP via the global fetch. */
-const fetchTransport: Transport = async (req) => {
+export const fetchTransport: Transport = async (req) => {
   const res = await fetch(req.url, {
     method: req.method,
     headers: req.headers,
@@ -45,7 +45,7 @@ const fetchTransport: Transport = async (req) => {
 };
 
 /** HTTPS with the box's self-signed certificate; only used for the HTTPS mode. */
-const httpsTransport: Transport = (req) =>
+export const httpsTransport: Transport = (req) =>
   new Promise((resolve, reject) => {
     const r = https.request(
       req.url,

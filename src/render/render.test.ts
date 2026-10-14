@@ -1,9 +1,9 @@
 import { describe, expect, it } from "vitest";
 import { dialOff, dialQr } from "./dial";
-import { guestKey, messageKey, onlineKey, qrKey } from "./keys";
+import { guestKey, messageKey, onlineKey, qrKey, trafficKey } from "./keys";
 import { qrMatrix, qrSvg } from "./qr";
 import { escapeXml } from "./svg";
-import { formatGuests, formatMbit, formatUptime } from "./values";
+import { formatBytes, formatGuests, formatMbit, formatUptime } from "./values";
 
 const decode = (dataUrl: string) => Buffer.from(dataUrl.split(",")[1], "base64").toString("utf8");
 
@@ -22,6 +22,17 @@ describe("values", () => {
     expect(formatMbit(95.24)).toBe("95.2");
     expect(formatMbit(241.6)).toBe("242");
     expect(formatMbit(Number.NaN)).toBe("0");
+  });
+
+  it("formats bytes", () => {
+    expect(formatBytes(0)).toEqual(["0", "B"]);
+    expect(formatBytes(512)).toEqual(["512", "B"]);
+    expect(formatBytes(1_500)).toEqual(["1.50", "KB"]);
+    expect(formatBytes(842_000_000)).toEqual(["842", "MB"]);
+    expect(formatBytes(12_440_000_000)).toEqual(["12.4", "GB"]);
+    expect(formatBytes(999_600_000)).toEqual(["1.00", "GB"]);
+    expect(formatBytes(1_024_000_000_000)).toEqual(["1.02", "TB"]);
+    expect(formatBytes(Number.NaN)).toEqual(["0", "B"]);
   });
 
   it("formats guest counts", () => {
@@ -92,6 +103,15 @@ describe("images", () => {
     expect(down).toContain(">Offline<");
     expect(down).toContain("not connected");
     expect(down).not.toContain("Mbit/s");
+  });
+
+  it("shows today's traffic", () => {
+    const key = decode(trafficKey({ sentBytes: 842_000_000, receivedBytes: 12_440_000_000 }));
+    expect(key).toContain(">Today<");
+    expect(key).toContain(">842<tspan");
+    expect(key).toContain(" MB</tspan>");
+    expect(key).toContain(">12.4<tspan");
+    expect(key).toContain("total 13.3 GB");
   });
 
   it("draws the QR code on key and dial", () => {

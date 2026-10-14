@@ -66,6 +66,24 @@
       ]
     },
     {
+      "UUID": "com.kirkanos.fritzbox.traffic",
+      "Name": "Today's Traffic",
+      "Icon": "images/actions/traffic",
+      "Tooltip": "Upload and download of today from the Fritz!Box online counter; press to open the Fritz!Box",
+      "PropertyInspectorPath": "ui/traffic.html",
+      "Controllers": [
+        "Keypad"
+      ],
+      "SupportedInMultiActions": false,
+      "States": [
+        {
+          "Image": "images/key",
+          "TitleAlignment": "top",
+          "FontSize": 10
+        }
+      ]
+    },
+    {
       "UUID": "com.kirkanos.fritzbox.guest-dial",
       "Name": "Guest WLAN Dial",
       "Icon": "images/actions/dial",

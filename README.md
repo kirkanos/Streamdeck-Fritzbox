@@ -11,8 +11,9 @@ Unofficial plugin, not affiliated with AVM.
   * Pressing the key turns the guest WLAN on or off.
   * Holding the key for about a second shows the Wi-Fi QR code (`WIFI:T:WPA;S:…;P:…;;`) for 30 seconds; guests scan it with their phone camera to join.
 * **Online** key: 🟩 online / 🟥 offline, the current download and upload rate in Mbit/s and the connection uptime. Pressing the key opens the Fritz!Box web interface.
+* **Today's Traffic** key: today's upload and download from the online counter of the box (Internet > Online Monitor > Online Counter) in KB, MB, GB or TB, plus the total. Pressing the key opens the Fritz!Box web interface.
 * **Guest WLAN Dial** (Stream Deck + / + XL): the touch strip shows the Wi-Fi QR code, SSID and guest count while the guest WLAN is on; pushing the dial or tapping the strip turns it on or off.
-* The plugin talks to the box over its TR-064 interface (SOAP over HTTP with digest authentication, the same interface the Fritz!App and MyFritz use) and polls every 10 seconds.
+* The plugin talks to the box over its TR-064 interface (SOAP over HTTP with digest authentication, the same interface the Fritz!App and MyFritz use) and polls every 10 seconds. The online counter is not available over TR-064: while a Today's Traffic key is visible, the plugin also logs in to the web interface with the same user and reads the counter every 30 seconds.
 
 ## Installation
 
@@ -47,7 +48,7 @@ Fritz!Box Control is a Node.js plugin built with the official [Stream Deck SDK](
 | --- | --- |
 | `src/actions/` | One class per Stream Deck action |
 | `src/tr064/` | TR-064 client: HTTP digest authentication, SOAP envelopes and parsing |
-| `src/fritz/` | Polling service for guest WLAN and internet status, Wi-Fi QR payload |
+| `src/fritz/` | Polling service for guest WLAN and internet status, web interface session for the online counter, Wi-Fi QR payload |
 | `src/render/` | SVG images for keys and touch strips, QR code drawing |
 | `plugin/` | Static plugin files: manifest, icons, settings pages (`ui/`), dial layout |
 | `assets/` | Plugin icon source (rendered to PNG by the build) |
@@ -75,5 +76,6 @@ GitHub Actions builds and tests every push (`.github/workflows/ci.yml`) and publ
 * **Keys show "Connect":** open the settings of any key and enter the connection data.
 * **"Cannot reach … is TR-064 enabled?":** check the host name and that "Allow access for applications" is enabled on the box.
 * **"Wrong username or password":** the box also rejects users without the "FRITZ!Box settings" right for most actions.
+* **Today's Traffic shows "login failed" or "no counter":** the web interface login uses the same user and needs the "FRITZ!Box settings" right. "No counter" means the firmware answered in an unknown format; the plugin log contains the response, please attach it to an issue.
 * **The wrong Wi-Fi is switched:** set the guest WLAN index in the settings.
 * Anything else: [open an issue](https://github.com/kirkanos/Streamdeck-Fritzbox/issues).

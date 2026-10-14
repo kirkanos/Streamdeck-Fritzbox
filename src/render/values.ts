@@ -32,3 +32,21 @@ export function formatMbit(mbit: number): string {
 export function formatGuests(count: number): string {
   return count === 1 ? "1 guest" : `${count} guests`;
 }
+
+const BYTE_UNITS = ["B", "KB", "MB", "GB", "TB", "PB"];
+
+/** Bytes in decimal units with three significant digits: ["842", "MB"], ["12.4", "GB"], ["1.02", "TB"]. */
+export function formatBytes(bytes: number): [string, string] {
+  if (!Number.isFinite(bytes) || bytes < 1000) {
+    return [String(Math.max(0, Math.round(Number.isFinite(bytes) ? bytes : 0))), "B"];
+  }
+  let unit = Math.min(Math.floor(Math.log10(bytes) / 3), BYTE_UNITS.length - 1);
+  let value = bytes / 1000 ** unit;
+  // 999.6 MB rounds to "1000": show "1.00 GB" instead.
+  if (Math.round(value) >= 1000 && unit < BYTE_UNITS.length - 1) {
+    unit++;
+    value /= 1000;
+  }
+  const digits = value < 9.995 ? 2 : value < 99.95 ? 1 : 0;
+  return [value.toFixed(digits), BYTE_UNITS[unit]];
+}

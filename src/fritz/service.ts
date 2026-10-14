@@ -1,7 +1,8 @@
 import { EventEmitter } from "node:events";
 import { Tr064Client, Tr064Error } from "../tr064/client";
 import { DEVICE_INFO, type Service, WAN_COMMON, WAN_IP, WAN_PPP, wlanConfiguration } from "../tr064/services";
-import { bitsPerSecondToMbit, bytesPerSecondToMbit, type GuestWlan, newestOfList, type OnlineStatus, toNumber } from "./model";
+import { bitsPerSecondToMbit, bytesPerSecondToMbit, type GuestWlan, newestOfList, type OnlineStatus, toNumber, type TrafficToday } from "./model";
+import { FritzWebSession } from "./web";
 
 export type FritzSettings = {
   host?: string;
@@ -18,6 +19,8 @@ export type TestResult = { ok: true; model: string } | { ok: false; error: strin
 
 export const DEFAULT_HOST = "fritz.box";
 export const POLL_INTERVAL_MS = 10_000;
+/** The online counter is read through the web interface, less often than the TR-064 values. */
+export const TRAFFIC_INTERVAL_MS = 30_000;
 
 /** Candidate indices for the guest network, most likely first (tri-band boxes use 4, dual-band 3, single-band 2). */
 const GUEST_CANDIDATES = [4, 3, 2];
@@ -28,8 +31,11 @@ export const isConfigured = (s: FritzSettings): boolean => Boolean(s.username &&
  * Polls one Fritz!Box over TR-064 and keeps the guest WLAN and internet
  * connection state.
  *
+ * Today's traffic comes from the online counter of the web interface and is
+ * only read while a key shows it (see `trafficWanted`).
+ *
  * Events:
- *   "update"  guest WLAN or online status changed
+ *   "update"  guest WLAN, online status or traffic changed
  *   "state"   the connection state changed
  */
 export class FritzService extends EventEmitter<{ update: []; state: [] }> {
@@ -44,6 +50,15 @@ export class FritzService extends EventEmitter<{ update: []; state: [] }> {
   #model: string | undefined;
   #wanService: Service | undefined;
   #guestIndex: number | undefined;
+  #web: FritzWebSession | undefined;
+  #traffic: TrafficToday | undefined;
+  #trafficError: string | undefined;
+  #trafficAt = 0;
+  #trafficPolling: Promise<void> | undefined;
+  #trafficWanted = false;
+
+  /** Receives problems that are not shown on the keys in full (e.g. an unknown online counter format). */
+  log: (message: string) => void = () => undefined;
 
   get settings(): FritzSettings {
     return this.#settings;
@@ -71,6 +86,23 @@ export class FritzService extends EventEmitter<{ update: []; state: [] }> {
 
   get online(): OnlineStatus | undefined {
     return this.#online;
+  }
+
+  get traffic(): TrafficToday | undefined {
+    return this.#traffic;
+  }
+
+  get trafficError(): string | undefined {
+    return this.#trafficError;
+  }
+
+  /** Whether a key shows today's traffic; the online counter is only read then. */
+  set trafficWanted(wanted: boolean) {
+    const start = wanted && !this.#trafficWanted;
+    this.#trafficWanted = wanted;
+    if (start && this.isConnected) {
+      void this.#pollTraffic();
+    }
   }
 
   get host(): string {
@@ -101,6 +133,10 @@ export class FritzService extends EventEmitter<{ update: []; state: [] }> {
     this.#model = undefined;
     this.#wanService = undefined;
     this.#guestIndex = next.guestIndex;
+    this.#web = undefined;
+    this.#traffic = undefined;
+    this.#trafficError = undefined;
+    this.#trafficAt = 0;
     this.emit("update");
 
     if (!isConfigured(next)) {
@@ -108,6 +144,12 @@ export class FritzService extends EventEmitter<{ update: []; state: [] }> {
       return;
     }
     this.#client = this.#createClient(next);
+    this.#web = new FritzWebSession({
+      host: next.host || DEFAULT_HOST,
+      https: next.https,
+      username: next.username ?? "",
+      password: next.password ?? "",
+    });
     this.#setState("connecting");
     void this.poll();
     this.#timer = setInterval(() => void this.poll(), POLL_INTERVAL_MS);
@@ -176,10 +218,47 @@ export class FritzService extends EventEmitter<{ update: []; state: [] }> {
       if (changed) {
         this.emit("update");
       }
+      if (this.#trafficWanted && Date.now() - this.#trafficAt >= TRAFFIC_INTERVAL_MS - 1_000) {
+        void this.#pollTraffic();
+      }
     } catch (err) {
       if (client === this.#client) {
         this.#setState("error", errorText(err));
       }
+    }
+  }
+
+  /** Reads the online counter; failures only affect the traffic key, not the connection state. */
+  #pollTraffic(): Promise<void> {
+    this.#trafficPolling ??= this.#readTraffic().finally(() => (this.#trafficPolling = undefined));
+    return this.#trafficPolling;
+  }
+
+  async #readTraffic(): Promise<void> {
+    const web = this.#web;
+    if (!web) {
+      return;
+    }
+    this.#trafficAt = Date.now();
+    let traffic: TrafficToday | undefined;
+    let error: string | undefined;
+    try {
+      traffic = await web.todayTraffic();
+    } catch (err) {
+      error = errorText(err);
+    }
+    if (web !== this.#web) {
+      return; // reconfigured meanwhile
+    }
+    if (error && error !== this.#trafficError) {
+      this.log(`online counter: ${error}`);
+    }
+    const before = JSON.stringify([this.#traffic, this.#trafficError]);
+    // Keep the last value through a single failed read.
+    this.#traffic = traffic ?? (this.#trafficError ? undefined : this.#traffic);
+    this.#trafficError = error;
+    if (JSON.stringify([this.#traffic, this.#trafficError]) !== before) {
+      this.emit("update");
     }
   }
 
@@ -305,6 +384,7 @@ export class FritzService extends EventEmitter<{ update: []; state: [] }> {
       this.#timer = undefined;
     }
     this.#client = undefined;
+    this.#web = undefined;
   }
 
   #setState(state: ConnectionState, error?: string): void {

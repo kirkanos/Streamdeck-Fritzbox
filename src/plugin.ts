@@ -2,6 +2,7 @@ import streamDeck from "@elgato/streamdeck";
 import { GuestDialAction } from "./actions/guest-dial";
 import { GuestWlanAction } from "./actions/guest-wlan";
 import { OnlineAction } from "./actions/online";
+import { TrafficAction } from "./actions/traffic";
 import { DEFAULT_HOST, fritz, type FritzSettings, isConfigured } from "./fritz/service";
 
 type JsonValue = Parameters<typeof streamDeck.ui.sendToPropertyInspector>[0];
@@ -11,10 +12,14 @@ streamDeck.logger.setLevel("info");
 const guestWlan = new GuestWlanAction();
 const online = new OnlineAction();
 const guestDial = new GuestDialAction();
+const traffic = new TrafficAction();
 
 streamDeck.actions.registerAction(guestWlan);
 streamDeck.actions.registerAction(online);
 streamDeck.actions.registerAction(guestDial);
+streamDeck.actions.registerAction(traffic);
+
+fritz.log = (message) => streamDeck.logger.warn(message);
 
 // Keep every visible key and dial in sync with the Fritz!Box.
 
@@ -22,6 +27,7 @@ function refreshAll(): void {
   void guestWlan.refresh();
   void online.refresh();
   void guestDial.refresh();
+  void traffic.refresh();
 }
 
 fritz.on("update", () => {

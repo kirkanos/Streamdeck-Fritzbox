@@ -27,6 +27,12 @@ export type OnlineStatus = {
   upMaxMbit: number;
 };
 
+/** Today's row of the online counter. */
+export type TrafficToday = {
+  sentBytes: number;
+  receivedBytes: number;
+};
+
 /**
  * First (newest) value of an online-monitor list such as "12345,0,0,...".
  * The Fritz!Box reports bytes per second in these lists, despite the "bps" name.
